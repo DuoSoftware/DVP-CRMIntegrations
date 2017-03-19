@@ -24,11 +24,11 @@ var zoho_id = config.Integrations.zoho.id;
 var zoho_redirect = config.Integrations.zoho.redirect;
 var zoho_secret = config.Integrations.zoho.secret;
 
-var callControllerURL = util.format("http://%s/DVP/API/%s/CallController", callcontrolerHost,callcontrolerVersion);
+var callControllerURL = util.format("http://%s/DVP/API/%s/MonitorRestAPI/Direct", callcontrolerHost,callcontrolerVersion);
 
 
 if(validator.isIP(callcontrolerHost))
-    callControllerURL = format("http://{0}:{1}/DVP/API/{2}/CallController", callcontrolerHost,callcontrolerPort,callcontrolerVersion);
+    callControllerURL = format("http://{0}:{1}/DVP/API/{2}/MonitorRestAPI/Direct", callcontrolerHost,callcontrolerPort,callcontrolerVersion);
 
 
 var redisip = config.Security.ip;
@@ -220,12 +220,12 @@ function EnableZohoCallControl(req, res){
             var propertiesObject = {
                 clicktocallurl: util.format("%s/clicktocall",callControllerURL),
                 answerurl: util.format("%s/answer",callControllerURL),
-                hungupurl: util.format("%s/hangup",callControllerURL),
-                muteurl: util.format("%s/mute",callControllerURL),
-                unmuteurl: util.format("%s/unmute",callControllerURL),
-                holdurl: util.format("%s/hold",callControllerURL),
-                unholdurl: util.format("%s/unhold",callControllerURL),
-                keypressurl: util.format("%s/key",callControllerURL),
+                hungupurl: util.format("%s/hungup",callControllerURL),
+                muteurl: util.format("%s/mute/true",callControllerURL),
+                unmuteurl: util.format("%s/mute/false",callControllerURL),
+                holdurl: util.format("%s/hold/true",callControllerURL),
+                unholdurl: util.format("%s/hold/false",callControllerURL),
+                keypressurl: util.format("%s/dtmf",callControllerURL),
                 userid:data,
                 authorizationparam: {"name":"authorization","value": GetServerToken(req.user.iss,tenant,company)}
 
