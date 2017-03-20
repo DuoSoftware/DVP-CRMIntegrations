@@ -114,6 +114,37 @@ function CreateZohoAccount(req, res) {
     });
 }
 
+function DeleteZohoAccount(req, res){
+
+    var tenant = parseInt(req.user.tenant);
+    var company = parseInt(req.user.company);
+    var jsonString;
+    Zoho.findOneAndRemove({company:company, tenant:tenant}, function(err, doc){
+
+        if (err) {
+            jsonString = messageFormatter.FormatMessage(err, "Delete Zoho account failed", false, undefined);
+            res.end(jsonString);
+        }
+        else {
+
+            ZohoUser.remove({company:company, tenant:tenant}, function(_err, doc){
+                if(_err){
+
+                    jsonString = messageFormatter.FormatMessage(_err, "Delete Zoho account successful but user delete failed", false, undefined);
+
+
+                }else{
+
+                    jsonString = messageFormatter.FormatMessage(undefined, "Delete Zoho account successful", true, undefined);
+
+                }
+
+                res.end(jsonString);
+            });
+        }
+    });
+}
+
 function DisableZohoIntegration(req, res){
 
     //https://api.zoho.com/crm/v2/phonebridge/integrate
@@ -959,4 +990,5 @@ module.exports.SaveZohoUser = SaveZohoUser;
 module.exports.EnableZohoUserCallControl = EnableZohoUserCallControl;
 module.exports.DisableZohoUserCallControl = DisableZohoUserCallControl;
 module.exports.EnableZohoUsersCallControl = EnableZohoUsersCallControl;
+module.exports.DeleteZohoAccount = DeleteZohoAccount;
 
