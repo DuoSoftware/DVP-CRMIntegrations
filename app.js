@@ -176,6 +176,6 @@ server.post('/DVP/API/:version/CRM/:crm/Integration/Activate',
 
 
 
-server.listen(port, host, function () {
+server.listen(port, function () {
     console.log('%s listening at %s', server.name, server.url);
 });
