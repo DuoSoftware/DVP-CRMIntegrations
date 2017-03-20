@@ -42,7 +42,7 @@ module.exports = {
     {
         "vdomain": "LB_FRONTEND",
         "domain": "HOST_NAME",
-        "port": "HOST_INTERACTIONS_PORT",
+        "port": "HOST_CRMINTEGRATIONS_PORT",
         "version": "HOST_VERSION"
     },
 
