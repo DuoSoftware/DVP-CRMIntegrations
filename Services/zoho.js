@@ -77,31 +77,38 @@ function CreateZohoAccount(req, res) {
 
                 response.body = JSON.parse(response.body);
 
-                var zoho = Zoho({
+                if(response.body.refresh_token &&response.body.access_token ) {
 
-                    company: company,
-                    tenant: tenant,
-                    created_at: Date.now(),
-                    updated_at: Date.now(),
-                    status: true,
+                    var zoho = Zoho({
 
-                    refresh_token: response.body.refresh_token,
-                    access_token: response.body.access_token,
-                    expires_in: response.body.expires_in,
-                    token_type: response.body.token_type,
-                });
+                        company: company,
+                        tenant: tenant,
+                        created_at: Date.now(),
+                        updated_at: Date.now(),
+                        status: true,
 
-                zoho.save(function (err, _zoho) {
-                    if (err) {
-                        jsonString = messageFormatter.FormatMessage(err, "Zoho save failed", false, undefined);
-                        res.end(jsonString);
-                    } else {
+                        refresh_token: response.body.refresh_token,
+                        access_token: response.body.access_token,
+                        expires_in: response.body.expires_in,
+                        token_type: response.body.token_type,
+                    });
 
-                        jsonString = messageFormatter.FormatMessage(undefined, "Zoho account saved successfully.", true, undefined);
-                        res.end(jsonString);
+                    zoho.save(function (err, _zoho) {
+                        if (err) {
+                            jsonString = messageFormatter.FormatMessage(err, "Zoho save failed", false, undefined);
+                            res.end(jsonString);
+                        } else {
 
-                    }
-                });
+                            jsonString = messageFormatter.FormatMessage(undefined, "Zoho account saved successfully.", true, undefined);
+                            res.end(jsonString);
+
+                        }
+                    });
+                }else{
+
+                    jsonString = messageFormatter.FormatMessage(undefined, "Zoho access token is invalid", false, undefined);
+                    res.end(jsonString);
+                }
 
 
             }else{
