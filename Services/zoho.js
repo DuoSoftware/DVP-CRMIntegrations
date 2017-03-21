@@ -517,7 +517,7 @@ function ZohoEventEmitter(req, res) {
             userid: req.body.profile
         };
 
-        if (req.body.action == 'hangup') {
+        if (req.body.action == 'hungup') {
 
             if (req.body.starttime) {
 
