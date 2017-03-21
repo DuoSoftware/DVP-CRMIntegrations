@@ -477,6 +477,8 @@ function GetUserByEmail(tenant, company, email) {
         }
     });
 
+    return defer.promise;
+
 };
 
 function ZohoEventEmitter(req, res) {
