@@ -10,7 +10,7 @@ var mongoose = require('mongoose');
 var secret = require('dvp-common/Authentication/Secret.js');
 var authorization = require('dvp-common/Authentication/Authorization.js');
 var zohoService  = require("./Services/zoho");
-var OrganisationConfig = require('dvp-mongomodels/model/OrganisationConfig').OrganisationConfig;
+var OrganisationConfig = require('dvp-mongomodels/model/OrganisationConfig');
 var messageFormatter = require('dvp-common/CommonMessageGenerator/ClientMessageJsonFormatter.js');
 
 var util = require('util');
