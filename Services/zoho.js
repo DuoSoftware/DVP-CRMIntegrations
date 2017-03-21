@@ -14,6 +14,7 @@ var redis = require("redis");
 var validator = require("validator");
 var uuid = require('node-uuid');
 var jwt = require('jsonwebtoken');
+var moment = require('moment');
 
 var _accessToken = config.Services.accessToken;
 var callcontrolerHost = config.Services.callcontrolHost;
@@ -29,6 +30,10 @@ var callControllerURL = util.format("http://%s/DVP/API/%s/MonitorRestAPI/Direct"
 
 if(validator.isIP(callcontrolerHost))
     callControllerURL = format("http://{0}:{1}/DVP/API/{2}/MonitorRestAPI/Direct", callcontrolerHost,callcontrolerPort,callcontrolerVersion);
+
+
+if(config.Host.callControllerurl)
+    callControllerURL = config.Host.callControllerurl;
 
 
 var redisip = config.Security.ip;
@@ -315,38 +320,59 @@ function GetAccessToken(tenant, company){
     var defer = q.defer();
     Zoho.findOne({company: company, tenant: tenant}, function(err, data){
 
-
         if (err) {
 
             return defer.reject("Error in finding zoho access token");
         }
 
-        if (data) {
-
-            var refreshTokenUrl = util.format("https://accounts.zoho.com/oauth/v2/token?refresh_token=%s&client_id=%s&client_secret=%s&redirect_uri=%s&grant_type=refresh_token",data.refresh_token,zoho_id,zoho_secret,zoho_redirect);
-
-            request.post(refreshTokenUrl, function (err, response, accessToken) {
-
-                if (err) {
-
-                    return defer.reject("Error in finding zoho access token");
-
-                }
-                else {
-
-                    if (response.statusCode == 200 && response.body) {
-                        response.body = JSON.parse(response.body);
+        if (data && data.refresh_token && data.access_token && data.expires_in && data.updated_at) {
 
 
-                        return defer.resolve(response.body.access_token);
+            var expireDate = new Date(data.updated_at.getTime() + data.expires_in);
 
-                    }else{
+            if(expireDate < new Date(new Date().getTime() + 600000 )) {
+                //3600000
+
+                var refreshTokenUrl = util.format("https://accounts.zoho.com/oauth/v2/token?refresh_token=%s&client_id=%s&client_secret=%s&redirect_uri=%s&grant_type=refresh_token", data.refresh_token, zoho_id, zoho_secret, zoho_redirect);
+
+                request.post(refreshTokenUrl, function (err, response, accessToken) {
+
+                    if (err) {
 
                         return defer.reject("Error in finding zoho access token");
-
                     }
-                }
-            });
+                    else {
+
+                        if (response.statusCode == 200 && response.body) {
+
+                            response.body = JSON.parse(response.body);
+
+                            Zoho.findOneAndUpdate({company:company, tenant:tenant},{access_token:response.body.access_token, updated_at: new Date()},
+                                function(error,_doc){
+
+                                    if(error){
+
+                                        console.log("Error i saving ", error);
+
+                                    }else{
+
+                                         console.log("No Error found token released");
+                                    }
+
+                                    return defer.resolve(response.body.access_token);
+
+                                });
+
+                        } else {
+
+                            return defer.reject("Error in finding zoho access token");
+                        }
+                    }
+                });
+            }else{
+
+                return defer.resolve(data.access_token);
+            }
         }
         else {
 
@@ -605,46 +631,54 @@ function ImportZohoUsers(req, res) {
         };
         request.post(options, function (err, response, accessToken) {
 
-            if (error) {
+            if (err) {
 
                 jsonString = messageFormatter.FormatMessage(err, "get Zoho users failed", false, undefined);
                 res.end(jsonString);
             }
             else {
 
-                if (response.statusCode == 200 && response.body && response.body.Users) {
+                if (response.statusCode == 200 && response.body && response.body) {
 
-                    var userArray =  response.body.Users.map(function(item) {
+                    response.body = JSON.parse(response.body);
 
-                        return ZohoUser({
+                    if(response.body.users) {
+                        var userArray = response.body.users.map(function (item) {
 
-                            company: company,
-                            tenant: tenant,
-                            created_at: Date.now(),
-                            updated_at: Date.now(),
-                            status: true,
-                            _id: item.userid,
-                            username: item.username,
-                            email: item.email
+                            return ZohoUser({
 
+                                company: company,
+                                tenant: tenant,
+                                created_at: Date.now(),
+                                updated_at: Date.now(),
+                                status: true,
+                                _id: item.userid,
+                                username: item.username,
+                                email: item.email
+
+                            });
                         });
-                    });
 
-                    ZohoUser.insertMany(userArray, function (err, mongooseDocuments) {
+                        ZohoUser.insertMany(userArray, function (err, mongooseDocuments) {
 
-                        if (err) {
-                            jsonString = messageFormatter.FormatMessage(err, "Zoho accounts save failed", false, undefined);
-                            res.end(jsonString);
-                        } else {
+                            if (err) {
+                                jsonString = messageFormatter.FormatMessage(err, "Zoho accounts save failed", false, undefined);
+                                res.end(jsonString);
+                            } else {
 
-                            jsonString = messageFormatter.FormatMessage(undefined, "Zoho accounts saved successfully.", true, undefined);
-                            res.end(jsonString);
-                        }
-                    });
+                                jsonString = messageFormatter.FormatMessage(undefined, "Zoho accounts saved successfully.", true, undefined);
+                                res.end(jsonString);
+                            }
+                        });
+                    }else{
+
+                        jsonString = messageFormatter.FormatMessage(undefined, "get Zoho users failed", false, undefined);
+                        res.end(jsonString);
+                    }
 
                 }else{
 
-                    jsonString = messageFormatter.FormatMessage(err, "get Zoho access token failed", false, undefined);
+                    jsonString = messageFormatter.FormatMessage(undefined, "get Zoho users failed", false, undefined);
                     res.end(jsonString);
                 }
             }

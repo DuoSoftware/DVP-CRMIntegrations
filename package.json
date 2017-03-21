@@ -19,7 +19,7 @@
   "dependencies": {
     "config": "^1.25.1",
     "dvp-common": "^0.6.7",
-    "dvp-mongomodels": "^4.5.7",
+    "dvp-mongomodels": "^4.5.8",
     "jsonwebtoken": "^7.3.0",
     "moment": "^2.18.0",
     "mongoose": "^4.9.0",
