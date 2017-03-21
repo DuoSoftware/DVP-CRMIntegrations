@@ -132,10 +132,6 @@ server.post('/DVP/API/:version/Zoho/Integration/Emit',
 
             if(!err && doc){
 
-                jsonString = messageFormatter.FormatMessage(err, "Organization config is not available", false, undefined);
-                res.end(jsonString);
-
-            }else{
 
                 if(doc.active_crm && doc.active_crm == 'zoho') {
                     zohoService.ZohoEventEmitter(req, res);
@@ -144,6 +140,13 @@ server.post('/DVP/API/:version/Zoho/Integration/Emit',
                     jsonString = messageFormatter.FormatMessage(undefined, "No active CRM Integration found", false, undefined);
                     res.end(jsonString);
                 }
+
+
+
+            }else{
+
+                jsonString = messageFormatter.FormatMessage(err, "Organization config is not available", false, undefined);
+                res.end(jsonString);
             }
 
         })
