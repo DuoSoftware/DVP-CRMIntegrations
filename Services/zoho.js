@@ -566,7 +566,7 @@ function ZohoEventEmitter(req, res) {
 
     GetUserByEmail(tenant, company, req.body.profile).then(function (data) {
 
-        queryParams.userid = req.body.data;
+        queryParams.userid = data._id;
         GetAccessToken(tenant, company).then(function (data) {
 
             var options = {
@@ -581,7 +581,7 @@ function ZohoEventEmitter(req, res) {
             request(options, function (error, response, body) {
 
                 console.log(options);
-                console.log(error);
+                console.log(response);
 
                 if (error) {
                     jsonString = messageFormatter.FormatMessage(err, "Zoho event emitter failed", false, undefined);
