@@ -795,19 +795,36 @@ function EnableZohoUserCallControl(req, res) {
     GetAccessToken(tenant, company).then(function (data) {
 
 
+        //var propertiesObject = {
+        //    clicktocallurl: util.format("%s/clicktocall", callControllerURL),
+        //    answerurl: util.format("%s/answer", callControllerURL),
+        //    hungupurl: util.format("%s/hangup", callControllerURL),
+        //    muteurl: util.format("%s/mute", callControllerURL),
+        //    unmuteurl: util.format("%s/unmute", callControllerURL),
+        //    holdurl: util.format("%s/hold", callControllerURL),
+        //    unholdurl: util.format("%s/unhold", callControllerURL),
+        //    keypressurl: util.format("%s/key", callControllerURL),
+        //    userid: req.params.userid,
+        //    authorizationparam: {"name":"authorization","value": GetServerToken(req.user.iss,tenant,company)}
+        //
+        //};
+
+
         var propertiesObject = {
-            clicktocallurl: util.format("%s/clicktocall", callControllerURL),
-            answerurl: util.format("%s/answer", callControllerURL),
-            hungupurl: util.format("%s/hangup", callControllerURL),
-            muteurl: util.format("%s/mute", callControllerURL),
-            unmuteurl: util.format("%s/unmute", callControllerURL),
-            holdurl: util.format("%s/hold", callControllerURL),
-            unholdurl: util.format("%s/unhold", callControllerURL),
-            keypressurl: util.format("%s/key", callControllerURL),
-            userid: req.params.userid,
-            authorizationparam: {"name":"authorization","value": GetServerToken(req.user.iss,tenant,company)}
+            clicktocallurl: util.format("%s/clicktocall",callControllerURL),
+            answerurl: util.format("%s/answer",callControllerURL),
+            hungupurl: util.format("%s/hungup",callControllerURL),
+            muteurl: util.format("%s/mute/true",callControllerURL),
+            unmuteurl: util.format("%s/mute/false",callControllerURL),
+            holdurl: util.format("%s/hold/true",callControllerURL),
+            unholdurl: util.format("%s/hold/false",callControllerURL),
+            keypressurl: util.format("%s/dtmf",callControllerURL),
+            authorizationparam: util.format("{name:Authorization,value:%s}",GetServerToken(req.user.iss,tenant,company)),
+            userid:req.params.userid,
 
         };
+
+        console.log(propertiesObject);
 
         var options = {
             method: 'POST',
