@@ -31,8 +31,8 @@ module.exports = {
     "vdomain": "localhost",
     "domain": "localhost",
     "port": "3637",
-    "version": "1.0.0.0",
-    "callControllerurl": "http://6f15d43f.ngrok.io/DVP/API/1.0.0.0/MonitorRestAPI/Direct"
+    "version": "1.0.0.0"
+    //"callControllerurl": "http://6f15d43f.ngrok.io/DVP/API/1.0.0.0/MonitorRestAPI/Direct"
   },
 
   "LBServer": {
