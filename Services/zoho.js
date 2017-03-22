@@ -578,10 +578,12 @@ function ZohoEventEmitter(req, res) {
                 }
             };
 
+            //console.log(options);
+
             request(options, function (error, response, body) {
 
                 console.log(options);
-                console.log(response);
+                //console.log(response);
 
                 if (error) {
                     jsonString = messageFormatter.FormatMessage(err, "Zoho event emitter failed", false, undefined);
