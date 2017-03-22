@@ -460,7 +460,7 @@ function GetServerToken(iss, tenant, company){
 function GetUserByEmail(tenant, company, email) {
 
     var defer = q.defer();
-    ZohoUser.find({company: company, tenant: tenant, status: true, email: email}, function (err, data) {
+    ZohoUser.findOne({company: company, tenant: tenant, status: true, email: email}, function (err, data) {
 
         if (err) {
 
