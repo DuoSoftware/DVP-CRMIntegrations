@@ -566,50 +566,57 @@ function ZohoEventEmitter(req, res) {
 
     GetUserByEmail(tenant, company, req.body.profile).then(function (data) {
 
-        queryParams.userid = data._id;
-        GetAccessToken(tenant, company).then(function (data) {
+        console.log(data);
+        if(data && data._id) {
+            queryParams.userid = data._id;
+            GetAccessToken(tenant, company).then(function (data) {
 
-            var options = {
-                method: 'POST',
-                uri: url,
-                qs: queryParams,
-                headers: {
-                    'Authorization': util.format("Zoho-oauthtoken %s", data),
-                }
-            };
+                var options = {
+                    method: 'POST',
+                    uri: url,
+                    qs: queryParams,
+                    headers: {
+                        'Authorization': util.format("Zoho-oauthtoken %s", data),
+                    }
+                };
 
-            //console.log(options);
+                //console.log(options);
 
-            request(options, function (error, response, body) {
+                request(options, function (error, response, body) {
 
-                console.log(options);
-                //console.log(response);
+                    console.log(options);
+                    //console.log(response);
 
-                if (error) {
-                    jsonString = messageFormatter.FormatMessage(err, "Zoho event emitter failed", false, undefined);
-                    res.end(jsonString);
-                }
-                else {
-
-                    if (response.statusCode < 200 || response.statusCode > 299) {
-
-                        jsonString = messageFormatter.FormatMessage(undefined, "Zoho event emitter failed", false, undefined);
+                    if (error) {
+                        jsonString = messageFormatter.FormatMessage(err, "Zoho event emitter failed", false, undefined);
                         res.end(jsonString);
                     }
                     else {
 
+                        if (response.statusCode < 200 || response.statusCode > 299) {
 
-                        jsonString = messageFormatter.FormatMessage(undefined, "Zoho event emits", true, undefined);
-                        res.end(jsonString);
+                            jsonString = messageFormatter.FormatMessage(undefined, "Zoho event emitter failed", false, undefined);
+                            res.end(jsonString);
+                        }
+                        else {
+
+
+                            jsonString = messageFormatter.FormatMessage(undefined, "Zoho event emits", true, undefined);
+                            res.end(jsonString);
+                        }
                     }
-                }
+                });
+
+            }).catch(function (err) {
+
+                jsonString = messageFormatter.FormatMessage(err, "get Zoho access token failed", false, undefined);
+                res.end(jsonString);
             });
+        }else{
 
-        }).catch(function (err) {
-
-            jsonString = messageFormatter.FormatMessage(err, "get Zoho access token failed", false, undefined);
+            jsonString = messageFormatter.FormatMessage(false, "get Zoho user by email failed", false, undefined);
             res.end(jsonString);
-        });
+        }
 
     }).catch(function (err) {
 
