@@ -664,7 +664,7 @@ function ImportZohoUsers(req, res) {
                             });
                         });
 
-                        ZohoUser.insertMany(userArray, function (err, mongooseDocuments) {
+                        ZohoUser.insertMany(userArray,{ordered : false}, function (err, mongooseDocuments) {
 
                             if (err) {
                                 jsonString = messageFormatter.FormatMessage(err, "Zoho accounts save failed", false, undefined);
