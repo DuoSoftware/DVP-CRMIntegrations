@@ -85,17 +85,15 @@ function CreateZohoAccount(req, res) {
                 if(response.body.refresh_token &&response.body.access_token ) {
 
                     var zoho = Zoho({
-
                         company: company,
                         tenant: tenant,
                         created_at: Date.now(),
                         updated_at: Date.now(),
-                        status: true,
-
+                        status: false,
                         refresh_token: response.body.refresh_token,
                         access_token: response.body.access_token,
                         expires_in: response.body.expires_in,
-                        token_type: response.body.token_type,
+                        token_type: response.body.token_type
                     });
 
                     zoho.save(function (err, _zoho) {
@@ -178,14 +176,22 @@ function DisableZohoIntegration(req, res){
         request(options, function (error, response, body) {
 
             if (error) {
-                jsonString = messageFormatter.FormatMessage(err, "Disable Zoho phone bridge failed", false, undefined);
+                jsonString = messageFormatter.FormatMessage(error, "Disable Zoho phone bridge failed", false, undefined);
                 res.end(jsonString);
             }
             else {
 
                 if (response.statusCode == 200) {
-                    jsonString = messageFormatter.FormatMessage(undefined, "Zoho phone unbridged", true, undefined);
-                    res.end(jsonString);
+                    Zoho.findOneAndUpdate({company:company, tenant:tenant},{status:false}, function(err, doc){
+                        if(err){
+                            jsonString = messageFormatter.FormatMessage(err, "Zoho phone bridged", false, undefined);
+                            res.end(jsonString);
+
+                        }else{
+                            jsonString = messageFormatter.FormatMessage(undefined, "Zoho phone bridged", true, undefined);
+                            res.end(jsonString);
+                        }
+                    });
                 }
                 else {
                     jsonString = messageFormatter.FormatMessage(undefined, "Disable Zoho phone bridge failed", false, undefined);
@@ -222,14 +228,23 @@ function EnableZohoIntegration(req, res){
         request(options, function (error, response, body) {
 
             if (error) {
-                jsonString = messageFormatter.FormatMessage(err, "Zoho phone bridge failed", false, undefined);
+                jsonString = messageFormatter.FormatMessage(error, "Zoho phone bridge failed", false, undefined);
                 res.end(jsonString);
             }
             else {
 
                 if (response.statusCode == 200) {
-                    jsonString = messageFormatter.FormatMessage(undefined, "Zoho phone bridged", true, undefined);
-                    res.end(jsonString);
+                    Zoho.findOneAndUpdate({company:company, tenant:tenant},{status:true}, function(err, doc){
+                        if(err){
+                            jsonString = messageFormatter.FormatMessage(err, "Zoho phone bridged", false, undefined);
+                            res.end(jsonString);
+
+                        }else{
+                            jsonString = messageFormatter.FormatMessage(undefined, "Zoho phone bridged", true, undefined);
+                            res.end(jsonString);
+                        }
+                    });
+
                 }
                 else {
                     jsonString = messageFormatter.FormatMessage(undefined, "Zoho phone bridge failed", false, undefined);
@@ -313,7 +328,24 @@ function EnableZohoCallControl(req, res){
         jsonString = messageFormatter.FormatMessage(err, "get Zoho access token failed", false, undefined);
         res.end(jsonString);
     });
-};
+}
+
+function GetZohoAccount(req, res) {
+    var tenant = parseInt(req.user.tenant);
+    var company = parseInt(req.user.company);
+    var jsonString;
+    Zoho.findOne({company: company, tenant: tenant}, function(err, data){
+        if (err) {
+            jsonString = messageFormatter.FormatMessage(err, "Zoho", false, undefined);
+            res.end(jsonString);
+        }
+        else {
+
+            jsonString = messageFormatter.FormatMessage(undefined, "Zoho ", true, data);
+            res.end(jsonString);
+        }
+    });
+}
 
 function GetAccessToken(tenant, company){
 
@@ -777,6 +809,9 @@ function LoadZohoUsers(req, res) {
 
 function GetZohoUsers(req, res) {
 
+    var tenant = parseInt(req.user.tenant);
+    var company = parseInt(req.user.company);
+    var jsonString;
     ZohoUser.find({company: company, tenant: tenant}, function (err, data) {
         if (err) {
             jsonString = messageFormatter.FormatMessage(err, "Get Zoho user list failed", false, undefined);
@@ -956,7 +991,7 @@ function EnableZohoUsersCallControl(req, res) {
                 if (response.statusCode == 200) {
 
 
-                    ZohoUser.findAndUpdate({_id:{$in :req.body.userids}},{integrated:true}, function(err, doc){
+                    ZohoUser.updateMany({_id:{$in :req.body.userids}},{integrated:true}, function(err, doc){
                         if(err){
 
                             jsonString = messageFormatter.FormatMessage(err, "Zoho phone bridged but user update failed", false, undefined);
@@ -1046,7 +1081,7 @@ function DisableZohoUserCallControl(req, res) {
 
                 if (response.statusCode == 200) {
 
-                    ZohoUser.findOneAndUpdate({_id:req.params.userid},{integrated:true}, function(err, doc){
+                    ZohoUser.findOneAndUpdate({_id:req.params.userid},{integrated:false}, function(err, doc){
                         if(err){
 
                             jsonString = messageFormatter.FormatMessage(err, "Zoho phone bridged but user update failed", false, undefined);
@@ -1091,4 +1126,5 @@ module.exports.EnableZohoUserCallControl = EnableZohoUserCallControl;
 module.exports.DisableZohoUserCallControl = DisableZohoUserCallControl;
 module.exports.EnableZohoUsersCallControl = EnableZohoUsersCallControl;
 module.exports.DeleteZohoAccount = DeleteZohoAccount;
+module.exports.GetZohoAccount = GetZohoAccount;
 
