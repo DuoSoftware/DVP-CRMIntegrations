@@ -59,7 +59,7 @@ module.exports = {
 
     "fileserviceurl": 'fileservice.app.veery.cloud',
     "fileserviceport": '8081',
-    "fileserviceVersion": "6.0"
+    "fileserviceVersion": "1.0.0.0"
   },
 
   "Integrations":{
