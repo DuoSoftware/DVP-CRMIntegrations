@@ -576,6 +576,13 @@ function ZohoEventEmitter(req, res) {
                 queryParams.desc = req.body.description;
             }
 
+            if (config.Services.fileserviceurl && config.Services.fileserviceVersion) {
+
+                queryParams.voiceurl = util.format("http://%s/DVP/API/%s/InternalFileService/File/DownloadLatest/%s/%s/%s.mp3", config.Services.fileserviceurl, config.Services.fileserviceVersion, tenant, company, queryParams.callrefid);
+
+
+            }
+
         } else if (req.body.action == 'missed') {
 
             if (req.body.missedtime) {

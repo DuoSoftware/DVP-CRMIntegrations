@@ -56,7 +56,12 @@ module.exports = {
         "accessToken": "HOST_TOKEN",
         "callcontrolHost": "SYS_MONITORRESTAPI_HOST",
         "callcontrolPort": "SYS_MONITORRESTAPI_PORT",
-        "callcontrolVersion": "SYS_MONITORRESTAPI_VERSION"
+        "callcontrolVersion": "SYS_MONITORRESTAPI_VERSION",
+
+        "fileserviceurl": "SYS_FILESERVICE_HOST",
+        "fileserviceport":"SYS_FILESERVICE_PORT",
+        "fileserviceVersion":"SYS_FILESERVICE_VERSION"
+
     }
 };
 
