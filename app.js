@@ -43,6 +43,7 @@ var mongoreplicaset = config.Mongo.replicaset;
 
 
 var connectionstring = '';
+mongoip = mongoip.split(',');
 if (util.isArray(mongoip)) {
 
     mongoip.forEach(function (item) {
