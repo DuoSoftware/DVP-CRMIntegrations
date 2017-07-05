@@ -18,7 +18,7 @@
   "homepage": "https://github.com/DuoSoftware/DVP-CRMIntegrations#readme",
   "dependencies": {
     "config": "^1.25.1",
-    "dvp-common": "^0.8.1",
+    "dvp-common": "^0.8.4",
     "dvp-mongomodels": "^4.5.8",
     "ioredis": "^3.1.1",
     "jsonwebtoken": "^7.3.0",
