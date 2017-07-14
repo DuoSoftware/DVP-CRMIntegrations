@@ -10,7 +10,7 @@ var ZohoUser = require('dvp-mongomodels/model/Zoho').ZohoUser;
 var logger = require('dvp-common/LogHandler/CommonLogHandler.js').logger;
 var messageFormatter = require('dvp-common/CommonMessageGenerator/ClientMessageJsonFormatter.js');
 var q = require("q");
-var redis = require("redis");
+var redis = require("ioredis");
 var validator = require("validator");
 var uuid = require('node-uuid');
 var jwt = require('jsonwebtoken');
@@ -38,27 +38,83 @@ if(config.Host.callControllerurl)
 
 var redisip = config.Security.ip;
 var redisport = config.Security.port;
-var redisuser = config.Security.user;
 var redispass = config.Security.password;
+var redismode = config.Security.mode;
+var redisdb = config.Security.db;
 
 
-//[redis:]//[user][:password@][host][:port][/db-number][?db=db-number[&password=bar[&option=value]]]
-//redis://user:secret@localhost:6379
 
+var redisSetting =  {
+    port:redisport,
+    host:redisip,
+    family: 4,
+    db: redisdb,
+    password: redispass,
+    retryStrategy: function (times) {
+        var delay = Math.min(times * 50, 2000);
+        return delay;
+    },
+    reconnectOnError: function (err) {
 
-var redisClient = redis.createClient(redisport, redisip);
-
-redisClient.on('error', function (err) {
-    console.log('Error ' + err);
-});
-
-redisClient.auth(redispass, function (error) {
-
-    if(error != null) {
-        console.log("Error Redis : " + error);
+        return true;
     }
-});
+};
 
+if(redismode == 'sentinel'){
+
+    if(config.Security.sentinels && config.Security.sentinels.hosts && config.Security.sentinels.port, config.Security.sentinels.name){
+        var sentinelHosts = config.Security.sentinels.hosts.split(',');
+        if(Array.isArray(sentinelHosts) && sentinelHosts.length > 2){
+            var sentinelConnections = [];
+
+            sentinelHosts.forEach(function(item){
+
+                sentinelConnections.push({host: item, port:config.Security.sentinels.port})
+
+            })
+
+            redisSetting = {
+                sentinels:sentinelConnections,
+                name: config.Security.sentinels.name,
+                password:redispass
+            }
+
+        }else{
+
+            console.log("No enough sentinel servers found .........");
+        }
+
+    }
+}
+
+var redisClient = undefined;
+
+if(redismode != "cluster") {
+    redisClient = new redis(redisSetting);
+}else{
+
+    var redisHosts = redisip.split(",");
+    if(Array.isArray(redisHosts)){
+
+
+        redisSetting = [];
+        redisHosts.forEach(function(item){
+            redisSetting.push({
+                host: item,
+                port: redisport,
+                family: 4,
+                password: redispass});
+        });
+
+        var redisClient = new redis.Cluster([redisSetting]);
+
+    }else{
+
+        redisClient = new redis(redisSetting);
+    }
+
+
+}
 
 
 
