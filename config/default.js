@@ -80,9 +80,9 @@ module.exports = {
   "Integrations":{
 
     "zoho":{
-      "id": "1000.9CA76T07V09456782NDROVGLVH8D16",
-      "secret": "0f3c7e2abc3bd20434dfd876fd5f53aca6439374a9",
-      "redirect": "console.veery.cloud/zoho/crm"
+      "id": "",
+      "secret": "",
+      "redirect": ""
     }
 
   }
